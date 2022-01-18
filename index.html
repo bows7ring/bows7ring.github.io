@@ -110,11 +110,11 @@
 </ul>
 <hr>
 <p><strong>设计理念：</strong>想要做到(i)更安全，(ii)更灵活的同时还能减少对OS的依赖，(iii)减少安全管理、系统服务之间的耦合，enclave就需要自己完成更多的功能，<strong>也就是自治</strong>。比如本文所讨论的内存管理。</p>
-<h2 id="1，What‘s-New"><a href="#1，What‘s-New" class="headerlink" title="1，What‘s New"></a>1，What‘s New</h2><p><img src="D:\科研\工作文档\工作文档\论文\img\sgx2.1.png" alt="image-20220117154225802"></p>
+<h2 id="1，What‘s-New"><a href="#1，What‘s-New" class="headerlink" title="1，What‘s New"></a>1，What‘s New</h2><p><img src="D:\GitHub\source\images\sgx2.1.png" alt="image-20220117154225802"></p>
 <p>区别如图，SGX1的缺点主要有2点，(i)所有enclave内存需要在enclave创建时确定，费时间，并且开销在有限的EPC上(ii)不能灵活适用于多场景，需按最坏情况分配资源。否则开发者要为不同的负载设计不同的软件。</p>
 <h2 id="2，方案：enclave内存自治"><a href="#2，方案：enclave内存自治" class="headerlink" title="2，方案：enclave内存自治"></a>2，方案：enclave内存自治</h2><p>内存管理功能必须拆分为：管理系统资源的系统内存资源管理器（系统管理器）和从飞地内部管理飞地内存的内部飞地资源管理器（内部管理器）。</p>
 <p>需要一个由系统管理器和内部管理器之间的通信组成的协议。来完成如图的内存管理流程中的权限交接。</p>
-<p><img src="D:\科研\工作文档\工作文档\论文\img\sgx2.jpg" alt="image-20220117152942714"></p>
+<p><img src="D:\GitHub\source\images\sgx2.jpg" alt="image-20220117152942714"></p>
 <h2 id="3，自治需要做到："><a href="#3，自治需要做到：" class="headerlink" title="3，自治需要做到："></a>3，自治需要做到：</h2><ul>
 <li>enclave需要自己掌控其内存和权限<em>【自己实现部分功能】</em></li>
 <li>enclave代码在enclave不知情的情况下被改变时，将不会被执行<em>【代码、页完整性】</em></li>
@@ -157,8 +157,8 @@
 </blockquote>
 </li>
 </ul>
-<h1 id="SGX-2-0-细节："><a href="#SGX-2-0-细节：" class="headerlink" title="SGX 2.0 细节："></a>SGX 2.0 细节：</h1><h2 id="0，新指令："><a href="#0，新指令：" class="headerlink" title="0，新指令："></a>0，新指令：</h2><p><img src="D:\科研\工作文档\工作文档\论文\img\sgx3.png" alt="image-20220117165231955"></p>
-<h2 id="1，Flow图："><a href="#1，Flow图：" class="headerlink" title="1，Flow图："></a>1，Flow图：</h2><p><img src="D:\科研\工作文档\工作文档\论文\img\sgx.png" alt="image-20220117165331687"></p>
+<h1 id="SGX-2-0-细节："><a href="#SGX-2-0-细节：" class="headerlink" title="SGX 2.0 细节："></a>SGX 2.0 细节：</h1><h2 id="0，新指令："><a href="#0，新指令：" class="headerlink" title="0，新指令："></a>0，新指令：</h2><p><img src="D:\GitHub\source\images\sgx3.png" alt="image-20220117165231955"></p>
+<h2 id="1，Flow图："><a href="#1，Flow图：" class="headerlink" title="1，Flow图："></a>1，Flow图：</h2><p><img src="D:\GitHub\source\images\sgx.png" alt="image-20220117165331687"></p>
 <h2 id="2，内存管理各功能的实现："><a href="#2，内存管理各功能的实现：" class="headerlink" title="2，内存管理各功能的实现："></a>2，内存管理各功能的实现：</h2><h3 id="Enclave-Malloc："><a href="#Enclave-Malloc：" class="headerlink" title="Enclave Malloc："></a><strong>Enclave Malloc</strong>：</h3><p>要实现 allocation + commit。需要EAUG + EACCPET。</p>
 <h3 id="Enclave-Free："><a href="#Enclave-Free：" class="headerlink" title="Enclave Free："></a><strong>Enclave Free</strong>：</h3><p>SGX1就能释放commited mem了。SGX2的更健壮。</p>
 <ul>
@@ -181,10 +181,10 @@
 <p> SGX2’s enhanced enclave exception handling provides the enclave runtime information about exceptions occurring inside the enclave. This secure reporting of exceptions allows enclave runtime systems to invoke application exception handlers without relying on the external exception handling system. </p>
 </blockquote>
 <h2 id="3，补充："><a href="#3，补充：" class="headerlink" title="3，补充："></a>3，补充：</h2><h3 id="非enclave的堆内存申请："><a href="#非enclave的堆内存申请：" class="headerlink" title="非enclave的堆内存申请："></a>非enclave的堆内存申请：</h3><p>用runtime库中的接口申请，如malloc。向OS请求，OS返回一个指针，指向新申请的内存。</p>
-<p><img src="D:\科研\工作文档\工作文档\论文\img\sgxmem.png" alt="image-20220117171633389"></p>
+<p><img src="D:\GitHub\source\images\sgxmem.png" alt="image-20220117171633389"></p>
 <h3 id="enclave的堆内存申请："><a href="#enclave的堆内存申请：" class="headerlink" title="enclave的堆内存申请："></a>enclave的堆内存申请：</h3><p>当然要使用enclave的runtime库中的接口了，用EAUG加个页面，多一些与底层硬件的交互。</p>
 <p>在enclave接受新的内存之前，要EACCEPT，接受对正在运行的enclave的页面类型修改。</p>
-<p><img src="D:\科研\工作文档\工作文档\论文\img\enclave-alloc.png" alt="image-20220117171841776"></p>
+<p><img src="D:\GitHub\source\images\enclave-alloc.png" alt="image-20220117171841776"></p>
 
       
     </div>
